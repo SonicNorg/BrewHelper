@@ -1,4 +1,4 @@
 package com.norg.brewhelper.model
 
 class TimedPhase(var parent: Phase,
-                 var phase: Phase, var delay: Int, var from: From, val alarm: Boolean): Phase(0)
+                 phase: Phase, var delay: Int = 0, var start: From = From.PARENT_START, var alarm: Boolean = true): Phase(phase.id, phase.name, phase.duration, phase.description)

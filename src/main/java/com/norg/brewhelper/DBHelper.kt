@@ -5,12 +5,13 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.content.Context
 import android.database.Cursor
+import android.util.Log
 import com.norg.brewhelper.model.From
 import com.norg.brewhelper.model.Phase
 import com.norg.brewhelper.model.TimedPhase
 
 internal class DBHelper private constructor(context: Context)// конструктор суперкласса
-    : SQLiteOpenHelper(context, "BrewHelper", null, 12) {
+    : SQLiteOpenHelper(context, "BrewHelper", null, 17) {
 
     companion object {
         private var db: DBHelper? = null
@@ -20,8 +21,10 @@ internal class DBHelper private constructor(context: Context)// конструк
         }
     }
 
+    private val LOG_TAG: String = this.javaClass.simpleName
+
     override fun onCreate(db: SQLiteDatabase) {
-//        Log.d(LOG_TAG, "--- onCreate database ---")
+        Log.d(LOG_TAG, "--- onCreate database ---")
         // создаем таблицу с полями
         db.execSQL("create table recipes ("
                 + "_id integer primary key autoincrement,"
@@ -29,18 +32,26 @@ internal class DBHelper private constructor(context: Context)// конструк
                 + "duration integer,"
                 + "description text,"
                 + "CONSTRAINT unique_name UNIQUE (name)"
-                + ");"
-                + "create table phases ("
+                + ");")
+        db.execSQL("create table phases ("
                 + "_id integer primary key autoincrement,"
-                + "recipe_name text NOT NULL,"
+                + "recipe_id integer NOT NULL,"
                 + "name text NOT NULL,"
                 + "duration integer,"
                 + "delay integer,"
                 + "alarm integer,"
-                + "from text,"
+                + "start text,"
                 + "description text,"
-                + "CONSTRAINT unique_parent_name UNIQUE (recipe_name, name),"
-                + "FOREIGN KEY(recipe_name) REFERENCES recipes(name));")
+                + "CONSTRAINT unique_parent_name UNIQUE (recipe_id, name),"
+                + "FOREIGN KEY(recipe_id) REFERENCES recipes(_id));")
+//        do {
+//            val rawQuery = db.rawQuery("SELECT * FROM sqlite_master WHERE type='table';", null)
+//            rawQuery.moveToFirst()
+//            for (i in 0 until rawQuery.columnCount) {
+//                Log.d(LOG_TAG, rawQuery.getColumnName(i))
+//            }
+//        } while (rawQuery.moveToNext())
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -48,25 +59,26 @@ internal class DBHelper private constructor(context: Context)// конструк
             db.execSQL("alter table phases add column alarm integer; alter table phases add column delay integer;")
     }
 
-    fun saveRecipe(recipe: Phase) {
+    fun saveRecipe(recipe: Phase): Long {
         val db = writableDatabase
         val valuesRecipe = ContentValues()
+        var id: Long?
         db.beginTransaction()
         try {
             valuesRecipe.put("name", recipe.name)
             valuesRecipe.put("duration", recipe.duration)
             valuesRecipe.put("description", recipe.description)
 
-            db.insert("recipes", null, valuesRecipe)
+            id = db.insert("recipes", null, valuesRecipe)
             if (!recipe.phases.isEmpty())
                 for (phase in recipe.phases) {
                     val valuesPhase = ContentValues()
-                    valuesPhase.put("recipe_name", phase.parent.name)
+                    valuesPhase.put("recipe_id", id)
                     valuesPhase.put("name", phase.name)
                     valuesPhase.put("duration", phase.duration)
                     valuesPhase.put("delay", phase.delay)
-                    valuesPhase.put("alarm", phase.alarm)
-                    valuesPhase.put("from", phase.from.toString())
+                    valuesPhase.put("alarm", if (phase.alarm) 1 else 0)
+                    valuesPhase.put("start", phase.start.toString())
                     valuesPhase.put("description", phase.description)
 
                     db.insert("phases", null, valuesPhase)
@@ -75,6 +87,7 @@ internal class DBHelper private constructor(context: Context)// конструк
         } finally {
             db.endTransaction()
         }
+        return id ?: throw SqlException()
     }
 
     fun getRecipes(): List<Phase> {
@@ -94,10 +107,10 @@ internal class DBHelper private constructor(context: Context)// конструк
         return readableDatabase.query("recipes", arrayOf("_id", "name", "duration", "description"), null, null, null, null, null)
     }
 
-    fun getPhases(recipe: Phase): List<TimedPhase> {
+    fun getPhases(recipe: Phase): MutableList<TimedPhase> {
         val db = readableDatabase
         val result: MutableList<TimedPhase> = ArrayList()
-        val cursor = db.query("phases", arrayOf("_id", "name", "duration", "delay", "from", "description", "alarm"), "recipe_name=?s", arrayOf(recipe.name), null, null, null)
+        val cursor = db.query("phases", arrayOf("_id", "name", "duration", "delay", "start", "description", "alarm"), "recipe_id=?", arrayOf(recipe.id.toString()), null, null, null)
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 result.add(

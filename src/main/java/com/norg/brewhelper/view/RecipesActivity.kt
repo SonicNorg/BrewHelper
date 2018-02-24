@@ -1,32 +1,46 @@
-package com.norg.brewhelper
+package com.norg.brewhelper.view
 
+import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
+import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
+import android.support.v4.widget.CursorAdapter.FLAG_AUTO_REQUERY
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.SimpleCursorAdapter
+import com.norg.brewhelper.DBHelper
+import com.norg.brewhelper.R
+import com.norg.brewhelper.R.layout.recipe_list_item
 import kotlinx.android.synthetic.main.activity_recipes.*
 import kotlinx.android.synthetic.main.app_bar_recipes.*
+import kotlinx.android.synthetic.main.content_recipes.*
 
 class RecipesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    internal val dbHelper = DBHelper.dbHelper(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recipes)
         setSupportActionBar(toolbar)
+//
+//        fab.setOnClickListener { view ->
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+//        }
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+        fab.setOnClickListener {
+            startActivityForResult(Intent(this, EditRecipeActivity::class.java), 0)
         }
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+
+        recipesList.adapter = SimpleCursorAdapter(this, recipe_list_item, dbHelper.getRecipesCursor(), arrayOf("name", "description"), intArrayOf(R.id.recipeName, R.id.recipeDescription), FLAG_AUTO_REQUERY)
 
         nav_view.setNavigationItemSelectedListener(this)
     }
@@ -80,5 +94,17 @@ class RecipesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        recipesList.adapter = SimpleCursorAdapter(this, recipe_list_item, dbHelper.getRecipesCursor(), arrayOf("name", "description"), intArrayOf(R.id.recipeName, R.id.recipeDescription), FLAG_AUTO_REQUERY)
+//        Snackbar.make(recipesList, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dbHelper.close()
     }
 }

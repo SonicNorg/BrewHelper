@@ -13,10 +13,11 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import com.norg.brewhelper.DBHelper
-import com.norg.brewhelper.Phase
+import com.norg.brewhelper.model.Phase
 import com.norg.brewhelper.R
 
 import kotlinx.android.synthetic.main.activity_edit_recipe.*
+import kotlinx.android.synthetic.main.fragment_edit_phases.view.*
 import kotlinx.android.synthetic.main.fragment_edit_recipe.*
 
 class EditRecipeActivity : AppCompatActivity() {
@@ -52,7 +53,7 @@ class EditRecipeActivity : AppCompatActivity() {
 //        }
 
         fab.setOnClickListener {
-            db.saveRecipe(Phase(recipeName.text.toString(), 0, recipeDescription.text.toString()))
+            db.saveRecipe(Phase(0, recipeName.text.toString(), 0, recipeDescription.text.toString()))
             onBackPressed()
         }
 
@@ -87,8 +88,14 @@ class EditRecipeActivity : AppCompatActivity() {
 
         override fun getItem(position: Int): Fragment {
             // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1)
+            // Return a EditRecipeFragment (defined as a static inner class below).
+            when (position) {
+                0 -> return EditRecipeFragment.newInstance(position + 1)
+                1 -> return EditIngredientsFragment.newInstance(position + 1)
+                2 -> return EditPhasesFragment.newInstance(position + 1)
+                else -> throw IllegalArgumentException("No fragment for page $position")
+            }
+
         }
 
         override fun getCount(): Int {
@@ -97,16 +104,12 @@ class EditRecipeActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    class PlaceholderFragment : Fragment() {
+    class EditRecipeFragment : Fragment() {
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                                   savedInstanceState: Bundle?): View? {
-            val rootView = inflater.inflate(R.layout.fragment_edit_recipe, container, false)
-//            rootView.section_label.text = getString(R.string.section_format, arguments.getInt(ARG_SECTION_NUMBER))
-            return rootView
+            //            rootView.section_label.text = getString(R.string.section_format, arguments.getInt(ARG_SECTION_NUMBER))
+            return inflater.inflate(R.layout.fragment_edit_recipe, container, false)
         }
 
         companion object {
@@ -120,8 +123,68 @@ class EditRecipeActivity : AppCompatActivity() {
              * Returns a new instance of this fragment for the given section
              * number.
              */
-            fun newInstance(sectionNumber: Int): PlaceholderFragment {
-                val fragment = PlaceholderFragment()
+            fun newInstance(sectionNumber: Int): EditRecipeFragment {
+                val fragment = EditRecipeFragment()
+                val args = Bundle()
+                args.putInt(ARG_SECTION_NUMBER, sectionNumber)
+                fragment.arguments = args
+                return fragment
+            }
+        }
+    }
+
+    class EditIngredientsFragment : Fragment() {
+
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                                  savedInstanceState: Bundle?): View? {
+            //            rootView.section_label.text = getString(R.string.section_format, arguments.getInt(ARG_SECTION_NUMBER))
+            return inflater.inflate(R.layout.fragment_edit_ingredients, container, false)
+        }
+
+        companion object {
+            /**
+             * The fragment argument representing the section number for this
+             * fragment.
+             */
+            private val ARG_SECTION_NUMBER = "section_number"
+
+            /**
+             * Returns a new instance of this fragment for the given section
+             * number.
+             */
+            fun newInstance(sectionNumber: Int): EditIngredientsFragment {
+                val fragment = EditIngredientsFragment()
+                val args = Bundle()
+                args.putInt(ARG_SECTION_NUMBER, sectionNumber)
+                fragment.arguments = args
+                return fragment
+            }
+        }
+    }
+
+    class EditPhasesFragment : Fragment() {
+
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                                  savedInstanceState: Bundle?): View? {
+            //            rootView.section_label.text = getString(R.string.section_format, arguments.getInt(ARG_SECTION_NUMBER))
+            val view = inflater.inflate(R.layout.fragment_edit_phases, container, false)
+            view.phasesList.adapter = PhaseListAdapter(view.context, ArrayList())
+            return view
+        }
+
+        companion object {
+            /**
+             * The fragment argument representing the section number for this
+             * fragment.
+             */
+            private val ARG_SECTION_NUMBER = "section_number"
+
+            /**
+             * Returns a new instance of this fragment for the given section
+             * number.
+             */
+            fun newInstance(sectionNumber: Int): EditPhasesFragment {
+                val fragment = EditPhasesFragment()
                 val args = Bundle()
                 args.putInt(ARG_SECTION_NUMBER, sectionNumber)
                 fragment.arguments = args

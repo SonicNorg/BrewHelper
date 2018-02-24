@@ -5,9 +5,12 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.content.Context
 import android.database.Cursor
+import com.norg.brewhelper.model.From
+import com.norg.brewhelper.model.Phase
+import com.norg.brewhelper.model.TimedPhase
 
 internal class DBHelper private constructor(context: Context)// конструктор суперкласса
-    : SQLiteOpenHelper(context, "BrewHelper", null, 11) {
+    : SQLiteOpenHelper(context, "BrewHelper", null, 12) {
 
     companion object {
         private var db: DBHelper? = null
@@ -32,7 +35,8 @@ internal class DBHelper private constructor(context: Context)// конструк
                 + "recipe_name text NOT NULL,"
                 + "name text NOT NULL,"
                 + "duration integer,"
-                + "minutes integer,"
+                + "delay integer,"
+                + "alarm integer,"
                 + "from text,"
                 + "description text,"
                 + "CONSTRAINT unique_parent_name UNIQUE (recipe_name, name),"
@@ -40,7 +44,8 @@ internal class DBHelper private constructor(context: Context)// конструк
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-//        dbHelper.execSQL("DROP TABLE IF EXISTS phases; DROP TABLE IF EXISTS recipes;")
+        if (newVersion == 12)
+            db.execSQL("alter table phases add column alarm integer; alter table phases add column delay integer;")
     }
 
     fun saveRecipe(recipe: Phase) {
@@ -59,7 +64,8 @@ internal class DBHelper private constructor(context: Context)// конструк
                     valuesPhase.put("recipe_name", phase.parent.name)
                     valuesPhase.put("name", phase.name)
                     valuesPhase.put("duration", phase.duration)
-                    valuesPhase.put("minutes", phase.minutes)
+                    valuesPhase.put("delay", phase.delay)
+                    valuesPhase.put("alarm", phase.alarm)
                     valuesPhase.put("from", phase.from.toString())
                     valuesPhase.put("description", phase.description)
 
@@ -77,7 +83,7 @@ internal class DBHelper private constructor(context: Context)// конструк
         val cursor = db.query("recipes", arrayOf("name", "duration", "description"), null, null, null, null, null)
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                result.add(Phase(cursor.getString(0), cursor.getInt(1), cursor.getString(2)))
+                result.add(Phase(0, cursor.getString(0), cursor.getInt(1), cursor.getString(2)))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -91,10 +97,15 @@ internal class DBHelper private constructor(context: Context)// конструк
     fun getPhases(recipe: Phase): List<TimedPhase> {
         val db = readableDatabase
         val result: MutableList<TimedPhase> = ArrayList()
-        val cursor = db.query("phases", arrayOf("name", "duration", "minutes", "from", "description"), "recipe_name=?s", arrayOf(recipe.name), null, null, null)
+        val cursor = db.query("phases", arrayOf("_id", "name", "duration", "delay", "from", "description", "alarm"), "recipe_name=?s", arrayOf(recipe.name), null, null, null)
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                result.add(TimedPhase(recipe, Phase(cursor.getString(0), cursor.getInt(1), cursor.getString(4)), cursor.getInt(2), From.valueOf(cursor.getString(3))))
+                result.add(
+                        TimedPhase(recipe,
+                                Phase(cursor.getLong(0), cursor.getString(1), cursor.getInt(2), cursor.getString(5)),
+                                cursor.getInt(3),
+                                From.valueOf(cursor.getString(4)),
+                                cursor.getInt(6) > 0))
             } while (cursor.moveToNext())
         }
         cursor.close()

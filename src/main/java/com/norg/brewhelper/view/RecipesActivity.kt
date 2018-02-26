@@ -27,13 +27,8 @@ class RecipesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recipes)
         setSupportActionBar(toolbar)
-//
-//        fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show()
-//        }
 
-        fab.setOnClickListener {
+        fabSave.setOnClickListener {
             val intent = Intent(this, EditRecipeActivity::class.java)
             startActivityForResult(intent, 0)
         }
@@ -43,17 +38,21 @@ class RecipesActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
-        recipesList.adapter = SimpleCursorAdapter(this, recipe_list_item, dbHelper.getRecipesCursor(), arrayOf("name", "description"), intArrayOf(R.id.recipeName, R.id.recipeDescription), FLAG_AUTO_REQUERY)
-        recipesList.onItemClickListener = AdapterView.OnItemClickListener({parent, view, position, id ->
+        recipesList.adapter = SimpleCursorAdapter(this,
+                recipe_list_item,
+                dbHelper.getRecipesCursor(),
+                arrayOf("name", "description"),
+                intArrayOf(R.id.recipeName, R.id.recipeDescription),
+                FLAG_AUTO_REQUERY)
+        recipesList.onItemClickListener = AdapterView.OnItemClickListener({ _, _, position, id ->
             val current = recipesList.adapter.getItem(position) as SQLiteCursor
             val item = Phase(current.getLong(0),
                     current.getString(1),
                     current.getInt(2),
                     current.getString(3))
             item.phases.addAll(dbHelper.getPhases(item))
-            val intent = Intent(this, EditRecipeActivity::class.java)
-            intent.putExtra("Recipe", item)
-            startActivityForResult(intent, 0)})
+            startActivityForResult(Intent(this, EditRecipeActivity::class.java)
+                    .putExtra("Recipe", item), 0)})
         nav_view.setNavigationItemSelectedListener(this)
     }
 

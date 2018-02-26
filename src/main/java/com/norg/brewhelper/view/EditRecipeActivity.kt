@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.fragment_edit_phases.*
 import kotlinx.android.synthetic.main.fragment_edit_phases.view.*
 import kotlinx.android.synthetic.main.fragment_edit_recipe.*
 import kotlinx.android.synthetic.main.fragment_edit_recipe.view.*
+import kotlinx.android.synthetic.main.phase_list_item.view.*
 
 class EditRecipeActivity : AppCompatActivity() {
     private val db = DBHelper.dbHelper(this)
@@ -66,16 +67,16 @@ class EditRecipeActivity : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 when(position) {
-                    0 -> fab.show()
+                    0 -> fabSave.show()
 //                    1 ->
-                    2 -> fab.hide()
+                    2 -> fabSave.hide()
                 }
             }
         })
     }
 
     fun setFab() {
-        with(fab) {
+        with(fabSave) {
             show()
             setOnClickListener {
                 recipe = intent.extras?.get("Recipe") as Phase? ?: Phase(0, "", 0, "")
@@ -250,11 +251,11 @@ class EditRecipeActivity : AppCompatActivity() {
             recipe = activity.intent.extras?.get("Recipe") as Phase? ?: Phase(0, "", 0, "")
 //            view.phasesList.adapter = PhaseListAdapter(view.context, DBHelper.dbHelper(view.context).getPhases(Phase(0)))
             view.phasesList.descendantFocusability = ListView.FOCUS_AFTER_DESCENDANTS
-            view.phasesList.adapter = PhaseListAdapter(view.context, recipe.phases)
+            view.phasesList.adapter = PhaseListAdapter(view.context, recipe.phases, activity)
             view.fabPhases.show()
             view.fabPhases.setOnClickListener({
                 recipe.phases.add(TimedPhase(recipe, Phase(0)))
-                phasesList.adapter = PhaseListAdapter(it.context, recipe.phases)
+                phasesList.adapter = PhaseListAdapter(it.context, recipe.phases, activity)
             })
             return view
         }

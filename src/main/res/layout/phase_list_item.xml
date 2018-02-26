@@ -6,82 +6,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/phaseName"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar2"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:contentDescription="Phase name"
-        android:ems="10"
-        android:hint="Phase name"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toStartOf="@+id/duration"
+        android:layout_height="20dp"
+        android:background="@android:color/darker_gray"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/duration"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
+    <Button
+        android:id="@+id/remove"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:contentDescription="Duration (mins)"
-        android:ems="10"
-        android:hint="Duration (mins)"
-        android:inputType="number"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@android:drawable/btn_dialog"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar2"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Spinner
-        android:id="@+id/start"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/delay"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/phaseName" />
-
-    <EditText
-        android:id="@+id/delay"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="52dp"
-        android:contentDescription="Delay (mins)"
-        android:ems="10"
-        android:hint="Delay (mins)"
-        android:inputType="number"
-        app:layout_constraintEnd_toEndOf="parent"
+    <Button
+        android:id="@+id/edit"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="32dp"
+        android:background="@android:drawable/ic_menu_edit"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar2"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/description"
-        android:layout_width="0dp"
+    <include
+        layout="@layout/phase_list_item_content"
+        android:layout_width="383dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:contentDescription="Description"
-        android:ems="10"
-        android:hint="Description"
-        android:inputType="textMultiLine"
-        app:layout_constraintEnd_toStartOf="@+id/delay"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/start" />
-
-    <CheckBox
-        android:id="@+id/alarm"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:checked="true"
-        android:text="Alarm"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/delay" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar2" />
 
 </android.support.constraint.ConstraintLayout>

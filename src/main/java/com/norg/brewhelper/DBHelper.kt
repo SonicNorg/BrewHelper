@@ -87,7 +87,7 @@ internal class DBHelper private constructor(context: Context)// конструк
         } finally {
             db.endTransaction()
         }
-        return id ?: throw SqlException()
+        return id ?: throw DBException()
     }
 
     fun getRecipes(): List<Phase> {

@@ -22,6 +22,10 @@
         <activity
             android:name=".view.EditRecipeActivity"
             android:label="@string/title_activity_edit_recipe"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".view.EditPhaseActivity"
+            android:label="@string/title_activity_edit_phase"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

@@ -1,5 +1,8 @@
 package com.norg.brewhelper.model
 
-enum class From(val parent: Boolean) {
-    PARENT_START(true), PARENT_END(true), PREV_START(false), PREV_END(false)
+enum class From(val parent: Boolean, val friendly: String) {
+    PARENT_START(true, "От начала родителя"),
+    PARENT_END(true, "До окончания родителя"),
+    PREV_START(false, "От начала предыдущей"),
+    PREV_END(false, "Хрень какая-то");
 }

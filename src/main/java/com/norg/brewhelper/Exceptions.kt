@@ -1,3 +1,5 @@
 package com.norg.brewhelper
 
-class SqlException: RuntimeException()
+class DBException : RuntimeException()
+
+class NullPhaseException : RuntimeException()

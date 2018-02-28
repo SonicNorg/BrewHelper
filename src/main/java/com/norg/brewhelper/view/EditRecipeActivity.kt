@@ -10,26 +10,16 @@ import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.*
-import android.widget.ListView
+import android.view.Menu
+import android.view.MenuItem
 import com.norg.brewhelper.DBHelper
 import com.norg.brewhelper.R
 import com.norg.brewhelper.model.Phase
-import com.norg.brewhelper.model.TimedPhase
 import kotlinx.android.synthetic.main.activity_edit_recipe.*
-import kotlinx.android.synthetic.main.fragment_edit_phases.*
-import kotlinx.android.synthetic.main.fragment_edit_phases.view.*
-import kotlinx.android.synthetic.main.fragment_edit_recipe.*
-import kotlinx.android.synthetic.main.fragment_edit_recipe.view.*
-import kotlinx.android.synthetic.main.phase_list_item.view.*
 
 class EditRecipeActivity : AppCompatActivity() {
     private val db = DBHelper.dbHelper(this)
     private var recipe: Phase = Phase(0, "", 0, "")
-
-    companion object {
-        val LOG_TAG: String = this::class.java.simpleName
-    }
 
     /**
      * The [android.support.v4.view.PagerAdapter] that will provide
@@ -41,9 +31,11 @@ class EditRecipeActivity : AppCompatActivity() {
      */
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
 
+    private val logTag = javaClass.simpleName
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(LOG_TAG, "--- onCreate EditRecipeActivity---")
+        Log.d(logTag, "onCreate")
         setContentView(R.layout.activity_edit_recipe)
 
         setSupportActionBar(toolbar)
@@ -80,7 +72,7 @@ class EditRecipeActivity : AppCompatActivity() {
             show()
             setOnClickListener {
                 recipe = intent.extras?.get("Recipe") as Phase? ?: Phase(0, "", 0, "")
-                Log.d(LOG_TAG, "Saving recipe with ${recipe.phases.size} phases")
+                Log.d(logTag, "Saving recipe with ${recipe.phases.size} phases")
                 try {
                     db.saveRecipe(recipe)
                     onBackPressed()
@@ -141,10 +133,10 @@ class EditRecipeActivity : AppCompatActivity() {
         override fun getItem(position: Int): Fragment {
             // getItem is called to instantiate the fragment for the given page.
             // Return a EditRecipeFragment (defined as a static inner class below).
-            when (position) {
-                0 -> return EditRecipeFragment.newInstance(position + 1)
-                1 -> return EditIngredientsFragment.newInstance(position + 1)
-                2 -> return EditPhasesFragment.newInstance(position + 1)
+            return when (position) {
+                0 -> EditRecipeFragment.newInstance(position + 1)
+                1 -> EditIngredientsFragment.newInstance(position + 1)
+                2 -> EditPhasesFragment.newInstance(position + 1)
                 else -> throw IllegalArgumentException("No fragment for page $position")
             }
 
@@ -156,140 +148,4 @@ class EditRecipeActivity : AppCompatActivity() {
         }
     }
 
-    class EditRecipeFragment : Fragment() {
-
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                                  savedInstanceState: Bundle?): View? {
-            //            rootView.section_label.text = getString(R.string.section_format, arguments.getInt(ARG_SECTION_NUMBER))
-            val view = inflater.inflate(R.layout.fragment_edit_recipe, container, false)
-            val recipe = activity.intent.extras?.get("Recipe") as Phase? ?: Phase(0, "", 0, "")
-            view.recipeName.setText(recipe.name)
-            view.recipeDescription.setText(recipe.description)
-
-            val onFocusChangeListener = View.OnFocusChangeListener({ v: View, b: Boolean ->
-                recipe.name = view.recipeName.text.toString()
-                recipe.description = view.recipeDescription.text.toString()
-                activity.intent.putExtra("Recipe", recipe)
-            })
-
-            view.recipeName.onFocusChangeListener = onFocusChangeListener
-            view.recipeDescription.onFocusChangeListener = onFocusChangeListener
-            return view
-        }
-
-        override fun onPause() {
-            Log.d(LOG_TAG, "onPause")
-            val recipe = activity.intent.extras?.get("Recipe") as Phase? ?: Phase(0, "", 0, "")
-            recipe.name = recipeName.text.toString()
-            recipe.description = recipeDescription.text.toString()
-            activity.intent.putExtra("Recipe", recipe)
-            super.onPause()
-        }
-
-        override fun onResume() {
-            Log.d(LOG_TAG, "onResume")
-            super.onResume()
-        }
-
-        companion object {
-            /**
-             * The fragment argument representing the section number for this
-             * fragment.
-             */
-            private val ARG_SECTION_NUMBER = "section_number"
-
-            /**
-             * Returns a new instance of this fragment for the given section
-             * number.
-             */
-            fun newInstance(sectionNumber: Int): EditRecipeFragment {
-                val fragment = EditRecipeFragment()
-                val args = Bundle()
-                args.putInt(ARG_SECTION_NUMBER, sectionNumber)
-                fragment.arguments = args
-                return fragment
-            }
-        }
-    }
-
-    class EditIngredientsFragment : Fragment() {
-
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                                  savedInstanceState: Bundle?): View? {
-            //            rootView.section_label.text = getString(R.string.section_format, arguments.getInt(ARG_SECTION_NUMBER))
-            return inflater.inflate(R.layout.fragment_edit_ingredients, container, false)
-        }
-
-        companion object {
-            /**
-             * The fragment argument representing the section number for this
-             * fragment.
-             */
-            private val ARG_SECTION_NUMBER = "section_number"
-
-            /**
-             * Returns a new instance of this fragment for the given section
-             * number.
-             */
-            fun newInstance(sectionNumber: Int): EditIngredientsFragment {
-                val fragment = EditIngredientsFragment()
-                val args = Bundle()
-                args.putInt(ARG_SECTION_NUMBER, sectionNumber)
-                fragment.arguments = args
-                return fragment
-            }
-        }
-    }
-
-    class EditPhasesFragment : Fragment() {
-        var recipe: Phase = Phase(0, "", 0, "")
-
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                                  savedInstanceState: Bundle?): View? {
-            //            rootView.section_label.text = getString(R.string.section_format, arguments.getInt(ARG_SECTION_NUMBER))
-            val view = inflater.inflate(R.layout.fragment_edit_phases, container, false)
-            recipe = activity.intent.extras?.get("Recipe") as Phase? ?: Phase(0, "", 0, "")
-//            view.phasesList.adapter = PhaseListAdapter(view.context, DBHelper.dbHelper(view.context).getPhases(Phase(0)))
-            view.phasesList.descendantFocusability = ListView.FOCUS_AFTER_DESCENDANTS
-            view.phasesList.adapter = PhaseListAdapter(view.context, recipe.phases, activity)
-            view.fabPhases.show()
-            view.fabPhases.setOnClickListener({
-                recipe.phases.add(TimedPhase(recipe, Phase(0)))
-                phasesList.adapter = PhaseListAdapter(it.context, recipe.phases, activity)
-            })
-            return view
-        }
-
-        override fun onResume() {
-            Log.d(LOG_TAG, "onResume")
-            recipe = activity.intent.extras?.get("Recipe") as Phase? ?: Phase(0, "", 0, "")
-            super.onResume()
-        }
-
-        override fun onPause() {
-            Log.d(LOG_TAG, "onPause")
-            activity.intent.putExtra("Recipe", recipe)
-            super.onPause()
-        }
-
-        companion object {
-            /**
-             * The fragment argument representing the section number for this
-             * fragment.
-             */
-            private val ARG_SECTION_NUMBER = "section_number"
-
-            /**
-             * Returns a new instance of this fragment for the given section
-             * number.
-             */
-            fun newInstance(sectionNumber: Int): EditPhasesFragment {
-                val fragment = EditPhasesFragment()
-                val args = Bundle()
-                args.putInt(ARG_SECTION_NUMBER, sectionNumber)
-                fragment.arguments = args
-                return fragment
-            }
-        }
-    }
 }

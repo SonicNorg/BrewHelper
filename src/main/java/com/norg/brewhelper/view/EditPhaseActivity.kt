@@ -1,16 +1,14 @@
 package com.norg.brewhelper.view
 
-import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
-import android.util.AttributeSet
-import android.view.View
 import com.norg.brewhelper.NullPhaseException
 import com.norg.brewhelper.R
+import com.norg.brewhelper.model.Phase
 import com.norg.brewhelper.model.TimedPhase
 
 import kotlinx.android.synthetic.main.activity_edit_phase.*
+import kotlinx.android.synthetic.main.content_edit_phase.*
 import kotlinx.android.synthetic.main.phase_list_item_content.*
 
 class EditPhaseActivity : AppCompatActivity() {
@@ -33,13 +31,13 @@ class EditPhaseActivity : AppCompatActivity() {
     }
 
     private fun initFabs() {
-//        fabSave.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show()
-//        }
+        fabSave.setOnClickListener {
+            intent.putExtra("Phase", phase)
+            finishActivity(0)
+        }
         fabAdd.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+            phase.phases.add(TimedPhase(phase, Phase(0)))
+            phasesList.adapter = PhaseListAdapter(view.context, phase.phases, this)
         }
     }
 

@@ -20,9 +20,9 @@ import com.norg.brewhelper.model.TimedPhase
 import kotlinx.android.synthetic.main.phase_list_item.view.*
 import kotlinx.android.synthetic.main.phase_list_item_content.view.*
 
-class PhaseListAdapter(var ctx: Context, var phases: MutableList<TimedPhase>, val parentActivity: Activity) : BaseAdapter() {
+class PhaseListAdapter(private var ctx: Context, var phases: MutableList<TimedPhase>, val parentActivity: Activity) : BaseAdapter() {
     private var lInflater = ctx.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    private val LOG_TAG: String = this::class.java.simpleName
+    private val logTag: String = this::class.java.simpleName
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val view = convertView ?: lInflater.inflate(R.layout.phase_list_item, parent, false)
@@ -37,9 +37,10 @@ class PhaseListAdapter(var ctx: Context, var phases: MutableList<TimedPhase>, va
         view.start.adapter = ArrayAdapter<String>(ctx, R.layout.spinner_dropdown_item, From.values().map { it.friendly })
         view.start.setSelection(phase.start.ordinal)
 
-        for(i in 0 until (view as ViewGroup).childCount) {
-            view.getChildAt(i).onFocusChangeListener = View.OnFocusChangeListener({ v: View, b: Boolean ->
-                Log.d(LOG_TAG, "Focus changed, this view=$view new view=$v focus=$b")
+        val content = view.findViewById<ViewGroup>(R.id.phaseListItemContent)
+        for(i in 0 until content.childCount) {
+            content.getChildAt(i).onFocusChangeListener = View.OnFocusChangeListener({ v: View, b: Boolean ->
+                Log.d(logTag, "Focus changed, this view=$view new view=$v focus=$b")
                 with(phases[position]) {
                     name = view.phaseName.text.toString()
                     duration = if (view.duration.text.toString().isNotBlank()) Integer.valueOf(view.duration.text.toString()) else 0

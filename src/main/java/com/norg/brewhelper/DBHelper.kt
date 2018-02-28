@@ -21,10 +21,10 @@ internal class DBHelper private constructor(context: Context)// конструк
         }
     }
 
-    private val LOG_TAG: String = this.javaClass.simpleName
+    private val logTag: String = this.javaClass.simpleName
 
     override fun onCreate(db: SQLiteDatabase) {
-        Log.d(LOG_TAG, "--- onCreate database ---")
+        Log.d(logTag, "--- onCreate database ---")
         // создаем таблицу с полями
         db.execSQL("create table recipes ("
                 + "_id integer primary key autoincrement,"
@@ -48,7 +48,7 @@ internal class DBHelper private constructor(context: Context)// конструк
 //            val rawQuery = db.rawQuery("SELECT * FROM sqlite_master WHERE type='table';", null)
 //            rawQuery.moveToFirst()
 //            for (i in 0 until rawQuery.columnCount) {
-//                Log.d(LOG_TAG, rawQuery.getColumnName(i))
+//                Log.d(logTag, rawQuery.getColumnName(i))
 //            }
 //        } while (rawQuery.moveToNext())
 
